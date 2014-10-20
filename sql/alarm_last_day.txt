@@ -1,0 +1,2 @@
+select nas.severity,  nas.hostname,nas.message, nas.subsys,nas.created, nas.events  from CM_DEVICE as dev, NAS_TRANSACTION_SUMMARY as nas where nas.dev_id = dev.dev_id
+and nas.created > GETDATE()-1 order by nas.created

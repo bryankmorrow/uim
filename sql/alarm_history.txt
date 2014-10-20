@@ -1,0 +1,61 @@
+SELECT 
+	CASE
+		WHEN cur.alarms IS NOT NULL THEN cur.hub 
+		WHEN past1.alarms IS NOT NULL THEN past1.hub
+		WHEN past2.alarms IS NOT NULL THEN past2.hub
+		WHEN past3.alarms IS NOT NULL THEN past3.hub
+	END AS 'hub',
+	CASE
+		WHEN cur.alarms IS NOT NULL THEN cur.robot 
+		WHEN past1.alarms IS NOT NULL THEN past1.robot 
+		WHEN past2.alarms IS NOT NULL THEN past2.robot 
+		WHEN past3.alarms IS NOT NULL THEN past3.robot 
+	END AS 'robot',
+	CASE
+		WHEN cur.alarms IS NOT NULL THEN cur.subsys
+		WHEN past1.alarms IS NOT NULL THEN past1.subsys
+		WHEN past2.alarms IS NOT NULL THEN past2.subsys
+		WHEN past3.alarms IS NOT NULL THEN past3.subsys
+	END AS 'subsys',
+    cur.alarms as 'current', past1.alarms as 'last month', past2.alarms as '2 months', past3.alarms as '3 months'
+FROM
+	(SELECT hub,robot,subsys,COUNT(*) AS 'alarms' FROM NAS_TRANSACTION_SUMMARY 
+		WHERE created > DATEADD(MONTH, DATEDIFF(month, 0, getdate()), 0)
+		GROUP BY hub, robot, subsys) AS cur
+FULL JOIN
+	(SELECT hub,robot,subsys,COUNT(*) AS 'alarms' FROM NAS_TRANSACTION_SUMMARY 
+		WHERE created < DATEADD(MONTH, DATEDIFF(month, 0, getdate()), 0)
+		AND created > DATEADD(MONTH, DATEDIFF(month, 0, DATEADD(MONTH, -1, getdate())), 0)
+		GROUP BY hub, robot, subsys) AS past1
+ON cur.hub = past1.hub
+	AND cur.robot = past1.robot
+	AND cur.subsys = past1.subsys
+FULL JOIN
+	(SELECT hub,robot,subsys,COUNT(*) AS 'alarms' FROM NAS_TRANSACTION_SUMMARY 
+		WHERE created < DATEADD(MONTH, DATEDIFF(month, 0, DATEADD(MONTH, -1, getdate())), 0)
+		AND created > DATEADD(MONTH, DATEDIFF(month, 0, DATEADD(MONTH, -2, getdate())), 0)
+		GROUP BY hub, robot, subsys) AS past2
+ON (cur.hub = past2.hub
+	AND cur.robot = past2.robot
+	AND cur.subsys = past2.subsys)
+	OR
+	(past1.hub = past2.hub
+	AND past1.robot = past2.robot
+	AND past1.subsys = past2.subsys)
+FULL JOIN
+	(SELECT hub,robot,subsys,COUNT(*) AS 'alarms' FROM NAS_TRANSACTION_SUMMARY 
+		WHERE created < DATEADD(MONTH, DATEDIFF(month, 0, DATEADD(MONTH, -2, getdate())), 0)
+		AND created > DATEADD(MONTH, DATEDIFF(month, 0, DATEADD(MONTH, -3, getdate())), 0)
+		GROUP BY hub, robot, subsys) AS past3
+ON (cur.hub = past3.hub
+	AND cur.robot = past3.robot
+	AND cur.subsys = past3.subsys)
+	OR
+	(past1.hub = past3.hub
+	AND past1.robot = past3.robot
+	AND past1.subsys = past3.subsys)
+	OR
+	(past2.hub = past3.hub
+	AND past2.robot = past3.robot
+	AND past2.subsys = past3.subsys)
+ORDER BY hub,robot,subsys

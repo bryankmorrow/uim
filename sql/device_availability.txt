@@ -1,0 +1,27 @@
+select 
+       REPLACE([Target], ':ping', '') as Target,
+       [Available],
+       [NotAvailable],
+       CAST(CAST([Available] * 100.0 AS Numeric(10,2)) / sum([Available]+[NotAvailable]) as Numeric(10,2)) as [Percentage]
+from
+(
+Select s.target as [Target],
+ sum(case when [value] IS NOT NULL then 1 else 0 end) as [Available],
+ sum(case when [value] IS NULL then 1 else 0 end) as [NotAvailable]
+from S_QOS_DATA  s
+ join (select 
+		DATEPART(yyyy, r.sampletime) as [sampleyear],
+		DATEPART(mm, r.sampletime) as [samplemonth],
+		DATEPART(dd, r.sampletime) as [sampleday],
+		r.samplevalue as [value], 
+		r.sampletime as [time],
+		r.table_id
+      from RN_QOS_DATA_0001 r
+      Join (Select r1.Table_id from RN_QOS_DATA_0001 r1 group by r1.Table_ID) rr
+      on r.table_id = rr.table_id
+      ) rx
+on s.table_id = rx.table_id
+where s.target like '%ping%'
+group by s.target
+) b
+group by b.target,b.Available,b.NotAvailable
