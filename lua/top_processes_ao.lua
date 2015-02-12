@@ -44,11 +44,13 @@ else
             print (process)
             note.append(note_id,process)
          elseif proc.short_executable ~= "Idle" then
-            printf ("Executable pid:%05d, cpu: %0.2f%% mem: %d MB - %s (%s) ",proc.process_id,proc.cpu_usage,proc.working_set_size/1024,proc.short_executable,proc.executable)
-            process = string.format("%05d, cpu: %0.2f%% mem: %d MB - %s (%s) ",proc.process_id,proc.cpu_usage,proc.working_set_size/1024,proc.short_executable,proc.executable)
-            buff = buff .. process .. "\n"
-            print (process)
-            note.append(note_id,process)
+            if proc.working_set_size ~= nil then
+               printf ("Executable pid:%05d, cpu: %0.2f%% mem: %d MB - %s (%s) ",proc.process_id,proc.cpu_usage,proc.working_set_size/1024,proc.short_executable,proc.executable)
+               process = string.format("%05d, cpu: %0.2f%% mem: %d MB - %s (%s) ",proc.process_id,proc.cpu_usage,proc.working_set_size/1024,proc.short_executable,proc.executable)
+               buff = buff .. process .. "\n"
+               print (process)
+               note.append(note_id,process)
+            end
          end
       end
    end
