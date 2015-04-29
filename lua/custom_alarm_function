@@ -1,0 +1,34 @@
+function createAlarm(domain,robotip,source,robot,origin,dev_id,nim,prid)
+
+   msg = pds.create ()
+
+
+   -- Create message header
+   pds.putString (msg,"nimid",nim)
+   pds.putInt    (msg,"nimts",timestamp.now() )
+   pds.putInt    (msg,"tz_offset",25200)
+   pds.putString (msg,"source",robotip)
+   pds.putString (msg,"robot",robot)
+   pds.putString (msg,"domain",domain)
+   pds.putString (msg,"origin",origin)
+   pds.putString (msg,"subject","alarm")
+   pds.putInt    (msg,"pri",1)
+   pds.putString (msg,"prid",prid)
+   pds.putString (msg,"dev_id",dev_id)
+
+   udata = pds.create()
+   pds.putString (udata,"message","THIS IS A TEST CRITICAL FROM A CUSTOM PROBE")
+   pds.putString (udata,"source",source)
+   pds.putString (udata,"subsys","custom-subsys")
+   pds.putInt (udata, "level",5)
+
+   pds.putPDS (msg,"udata",udata)
+
+   t,rc = nimbus.request ("spooler","hubpost",msg)
+
+   pds.delete (udata)
+   pds.delete (msg)
+   return rc
+end
+
+createAlarm("Nimsoft-Demo","192.168.1.1","robot-alarm","robot-alarm","TestAlarm","DEVICEID1234","ABCDEFGH-12345","custom_probe")
