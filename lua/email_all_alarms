@@ -1,0 +1,209 @@
+local function html_alarm_color(severity)
+   local s
+   
+   s = "bgColor='#C0C0C0'"
+   
+   if severity==5 then s = "bgColor='#FF0000'" end
+   if severity==4 then s = "bgColor='#FF9900'" end
+   if severity==3 then s = "bgColor='#FFFF00'" end
+   if severity==2 then s = "bgColor='#3971FF'" end
+   if severity==1 then s = "bgColor='#33FFFF'" end
+   if severity==0 then s = "bgColor='#00FF00'" end
+
+   return s
+
+end
+
+local function html_start(title)
+   local s = ""
+   s="<HTML>\n"
+   s=s.."<HEAD>\n"
+   s=s.."<TITLE>"..title.."</TITLE>\n"
+   s=s.."</HEAD>\n"
+   s=s.."<BODY>"
+   s=s.."<P>\n"
+   s=s.."<table width='800px' border='0' cellpadding='5' cellspacing='0'>\n"
+   s=s.."<tr><td width='800px' align='center' style='text-align: center'><a href='https://healthcheck.medquist.com'><img src='https://healthcheck.medquist.com/ump-theme/images/HealthCheckLogo_email_small.png' /></a></td></tr></table>\n"
+   return s
+end
+
+local function html_end()
+   local s
+   s="\n</BODY>"
+   s=s.."</HTML>"
+   return s
+end
+local function html_alarm_info(time_origin,time_arrival,level,suppcount,source,hostname,subsystem,robot,probe,assigned_to)
+   local s
+   s="\n<tr><td><table width='100%' bgcolor='#BEBEBE' border='1' bordercolor='#D2D2D2' cellpadding='5' cellspacing='0' style='text-transform: capitalize; border-collapse: collapse'><tbody>\n"
+   --s="\n<TR><td><table width='100%' border=0 background='http://193.71.55.80/icons/blue-gradient.png' bgcolor='#BFD4F9'><tbody>\n"
+   s=s.."<tr>\n"
+   s=s.." <td width='2%'><table width='20' height='10' border='0' cellpadding='2' "..html_alarm_color(level).."><tr><td></td></tr></table></td>\n"
+   --s=s.." <td width='2%'><table width=20 height=18 border=1 bgColor='#FF0000'><tr><td></td></tr></table></td>\n"
+   s=s.." <td width='25%'><b><font color='#FFFFFF'>"..source.."["..hostname.."]</font></b></td>\n"
+   s=s.." <td width='25%'><b><font color='#FFFFFF'>"..subsystem.."</font></b></td>\n"
+   s=s.." <td width='25%'><b><font color='#FFFFFF'>Robot: "..robot.."</font></b></td>\n"
+   s=s.." <td width='23%'><b><font color='#FFFFFF'>Probe: "..probe.."</font></b></td>\n"
+   s=s.."</tr></tbody></table></td></tr>\n"
+   s=s.."<tr><td bgColor='#FFFFFF'><b>Time:</b>"..time_origin..",&nbsp;<b>Arrival Time:</b>"..time_arrival..",&nbsp;<b>Count: </b>"..suppcount
+
+   if assigned_to ~= "" then
+      s=s..",&nbsp;<b>Assigned To: </b>"..assigned_to
+   end
+
+   s=s.."</td></tr>"
+   return s
+end
+
+local function html_alarm_message(msg)
+   return "\n<tr width='100%'><td><b>Message:</b>"..msg.."</td></tr>\n"
+end
+
+local function html_alarm_supp_info(time_supp,suppcount,level,severity,message)
+   local s
+   s="\n<tr><td width=10></td>\n"
+   --s=s.." <td width=15 " ..html_alarm_color(level)..">&nbsp;</td>\n"
+   s=s.." <td width=15><table width='20' height='10' border='0' cellpadding='2' "..html_alarm_color(level).."><tr><td></td></tr></table></td>\n"
+   s=s.." <td>"..time_supp.."</td>\n"
+   s=s.." <td width=40>" ..suppcount.."</td>\n"
+   s=s.." <td width=75>" ..severity.."</td>\n"
+   s=s.." <td>"..message.."</td>\n"
+   s=s.."</tr>\n"                        
+   return s
+end
+
+local a,buf,probe,assigned_to,t
+local time_origin,time_arrival,level,suppcount,source,hostname,subsys,robot
+transactions = 5
+show_invisible = false
+--local recipient    = "jarrod.hinson@mmodal.com,MModal Poiesis"
+local recipient    = "jarrod.hinson@mmodal.com"
+local title        = "Current Alarm Report"
+
+buf = ""
+buf = buf..html_start(title)
+
+   if type(transactions) ~= "number" then
+      transactions = 0
+   elseif type(show_invisible) ~= "boolean" then
+      show_invisble = false
+   end
+
+   a = alarm.list()
+
+   --if #a == 0 then return "" end
+   buf=buf.."<TABLE cellspacing=0 cellpadding=0 width='1000px' border=0>"
+
+   for ia=1,#a do
+
+      if a[ia].prid ~= nil then
+         probe = a[ia].prid
+      else
+         probe =""
+      end
+
+      if a[ia].assigned_to ~= nil then
+         assigned_to= a[ia].assigned_to
+      else
+         assigned_to= "N/A"
+      end
+
+      if a[ia].time_origin ~= nil then
+         time_origin= a[ia].time_origin
+      else
+         time_origin=""
+      end
+
+      if a[ia].time_arrival ~= nil then
+         time_arrival= a[ia].time_arrival
+      else
+         time_arrival=""
+      end
+
+      if a[ia].level ~= nil then
+         level= a[ia].level
+      else
+         level=""
+      end
+
+      if a[ia].suppcount ~= nil then
+         suppcount = a[ia].suppcount
+      else
+         suppcount=""
+      end
+
+      if a[ia].source ~= nil then
+         source= a[ia].source
+      else
+         source=""
+      end
+
+      if a[ia].hostname ~= nil then
+         hostname= a[ia].hostname
+      else
+         hostname=""
+      end
+
+      if a[ia].subsys ~= nil then
+         subsys= a[ia].subsys
+      else
+         subsys=""
+      end
+
+      if a[ia].robot ~= nil then
+         robot= a[ia].robot
+      else
+         robot=""
+      end
+
+      if a[ia].visible == 1 and a[ia].hub == "MM_POPO_KP" or (a[ia].visible==0 and show_invisible) and a[ia].hub == "MM_POPO_KP" then
+         --print("1: "..time_origin.." 2: "..time_arrival.." 3: "..level.." 4: "..suppcount.." 5: "..source.." 6: "..hostname.." 7: "..subsys.." 8: "..robot.." 9: "..probe.." 10: "..assigned_to)
+         buf=buf..html_alarm_info(time_origin,time_arrival,level,suppcount,source,hostname,subsys,robot,probe,assigned_to)        
+         buf=buf..html_alarm_message(a[ia].message)
+
+         if transactions > 0 then      
+
+            if a[ia].suppcount>1 or a[ia].level == 0 then
+
+               t = alarm.transactions(a[ia].nimid)
+
+               if #t > 0 then
+
+                  buf=buf.."<tr><td><b>Alarm Transactions:</b>"
+                  buf=buf.."<table cellspacing=2 cellpadding=4 bordercolor='#D2D2D2' style='text-transform: capitalize; border-collapse: collapse'>"
+                  buf=buf.."\n<tr><td width=10 style='border-left:0px; border-top:0px; border-bottom:0px; border-style: hidden;'></td>\n"
+                  buf=buf.." <td width=15></td>\n"
+                  buf=buf.." <td width=160 style='border-left:0px; border-top:0px; border-bottom:1px; border-collapse: collapse;'><b>Transaction Time</td>\n"
+                  buf=buf.." <td width=40><b>Trans</td>\n"
+                  buf=buf.." <td width=75><b>Severity</td>\n"
+                  buf=buf.." <td><b>Alarm Message</td>\n"
+                  buf=buf.."</tr>\n" 
+               
+                  for it=1,#t do
+                     if it>transactions then break end
+                     local time
+                     --if a[ia].time_supp ~= nil then
+                        --time= a[ia].time_supp
+                     --else
+                        --time=""
+                     --end
+                     if t[it].time_supp ~= nil then
+                        time= t[it].time_supp
+                     else
+                        time=""
+                     end
+                     buf=buf.. html_alarm_supp_info(time,t[it].suppcount,t[it].level,t[it].severity,t[it].message)
+                  end
+                  buf=buf.."</table><td><tr>"
+               end
+            end
+         end
+      end
+
+   end
+
+   buf=buf.."</TABLE>"
+ --print(buf)
+   buf=buf..html_end()
+--print(buf)
+   action.email(recipient,title,buf)
