@@ -1,0 +1,34 @@
+local sessionhandle = nimbus.session_open("/address/path/to/HA")
+if sessionhandle ~= nill then
+   local r_resp,rc = nimbus.session_request(sessionhandle, "get_status")
+   if rc == 0 then --only proceed if query is successful
+      if r_resp.connected == 0 then   -- if HA is not connected to primary, activate Profiles
+         aoresults = action.profile ()
+         if aoresults ~= nil then
+            for i, f in pairs (aoresults.profiles) do
+               if f.active == 0 then
+                  action.profile (f.name, true)
+                  print ("Activated profile: "..f.name)
+               end --end if
+            end --end for
+         end --endif
+         print("In failover state; Exiting script")
+      else
+         aoresults = action.profile ()
+         if aoresults ~= nil then
+            for i, f in pairs (aoresults.profiles) do
+               if f.active == 1 then
+                  action.profile (f.name, false)
+                  print ("Deactivated profile: "..f.name)
+               end --end if
+            end --end for
+         end --endif
+         print("In normal HA state; Exiting script")
+      end --end if
+   else
+      print ("HA probe unavailable, existing script")
+   end --end if
+else
+   print ("HA probe unavailable, existing script")
+end
+nimbus.session_close(sessionhandle)
