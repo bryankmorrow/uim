@@ -1,0 +1,38 @@
+function restart_probe(host_robot_address, probe_name)
+   args1 = pds.create()
+   pds.putString (args1,"name",probe_name)
+   pds.putInt (args1, "noforce", 0)
+   ret = nimbus.request (host_robot_address, "probe_deactivate", args1)
+   args2 = pds.create()
+   pds.putString (args2,"name",probe_name)
+   ret2 = nimbus.request (host_robot_address, "probe_activate", args2)
+end
+
+
+hubaddr = "/Nimsoft-Demo/WorldWideHQ/apollo/hub"
+ssplit = split(hubaddr, "/")
+hub_name = ssplit[3]
+
+getrobots = nimbus.request(hubaddr,"getrobots")
+if getrobots ~= nil then
+   for j,robot in pairs(getrobots.robotlist) do
+      if robot.name == hub_name then
+         print ("This is the hub, skipping")
+      else
+         robotaddr = "/Nimsoft-Demo/"..hub_name.."/"..robot.name.."/controller"
+         args = pds.create()
+         pds.putString(args,"hubdomain","Nimsoft-Demo")
+         pds.putString(args,"hubname","DMZ_HUB")
+         pds.putString(args,"hupip","192.168.129.11")
+         pds.putString(args,"hubport","48002")
+         pds.putString(args,"hub_dns_name","DMZ_HUB")
+         set_new_hub,rc = nimbus.request(robotaddr,"sethub",args)
+         if rc == 0 then
+			restart_probe(robotaddr,"controller")
+            print ("Primary hub configuration completed on "..robotaddr)
+         else
+            print ("Primary hub configuration failure on "..robotaddr)
+         end
+      end
+   end
+end
