@@ -1,0 +1,27 @@
+--------------------------------------------------------------------------------------------------------
+-- script:   modifyFloatingSLA
+-- author:   chris.luekermann@nimsoft.com
+-- date:     2010/05/17
+--------------------------------------------------------------------------------------------------------
+
+iRet = database.open("provider=nis;database=nis;driver=none")
+
+tSLAs = {
+   sla1 = 1,
+   sla2 = 2
+}
+
+sUpdateSlaQuery = "update S_SLA_DEFINITION set period_start=DATEADD(dd, -29, DATEDIFF(dd, 0, GETDATE())), period_begin=DATEADD(dd, -29, DATEDIFF(dd, 0, GETDATE())),period_end=DATEADD(dd, +1, DATEDIFF(dd, 0, GETDATE())) where sla_id=%d"
+sInsertJobQuery = "insert into D_SLA_JOBS (owner, description, create_date, execute_date, expire_date, sla_id, period_begin, period_end, history) values ( 'administrator', 'created by lua script',  getdate(), getdate(), dateadd(d, +1, getdate()), %d, dateadd(m, datediff(m, 0, dateadd(MM, -1,getdate())), 0), dateadd(m, datediff(m, 0, dateadd(m, 1, dateadd(MM, 0,getdate()))), -1), 'true')"
+
+
+
+for sDescription,iId in pairs(tSLAs) do
+   print (string.format("updating SLA %q with id %d", sDescription, iId ))
+   sUpdateSql = string.format( sUpdateSlaQuery, iId )
+   database.query ( sUpdateSql )
+   sInsertSql = string.format( sInsertJobQuery, iId )
+   database.query( sInsertSql )
+end
+
+database.close() -- close the db connection
