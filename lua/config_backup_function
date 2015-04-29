@@ -1,0 +1,20 @@
+
+function ConfigFileBackup(controllerAddr,probeDir,cfgFile,backupFile)
+   mypds = pds.create()
+   pds.putString ( mypds, "directory",   probeDir )
+   pds.putString ( mypds, "file",        cfgFile  )
+   pds.putInt    ( mypds, "buffer_size", 10240000 )
+   output1,return_status1 = nimbus.request ( controllerAddr, "text_file_get", mypds )
+   if return_status1 == NIME_OK then
+      value1 = output1["file_content"]
+      fname1 = backupFile
+      file.create ( fname1 )
+      file.write ( fname1, value1 )
+	  print ("Success")
+   else
+      print ("Failed")
+      pds.delete (mypds)
+      exit (2)
+   end
+   pds.delete (mypds)
+end
