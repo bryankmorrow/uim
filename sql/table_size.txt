@@ -1,0 +1,34 @@
+ SELECT 
+	q.name as QOS,
+	q.qos_group as [Group],
+	q.unit as Unit,
+	q.unit_short as Abbreviation,
+	q.isbool as IsBoolean,
+	q.hasmax as HasMax,
+    t.NAME AS TableName,
+    p.rows AS RowCounts,
+    SUM(a.total_pages) * 8 AS TotalSpaceKB, 
+    SUM(a.used_pages) * 8 AS UsedSpaceKB, 
+    (SUM(a.total_pages) - SUM(a.used_pages)) * 8 AS UnusedSpaceKB
+FROM 
+    sys.tables t
+INNER JOIN      
+    sys.indexes i ON t.OBJECT_ID = i.object_id
+INNER JOIN 
+    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+INNER JOIN 
+    sys.allocation_units a ON p.partition_id = a.container_id
+LEFT OUTER JOIN 
+    sys.schemas s ON t.schema_id = s.schema_id
+LEFT OUTER JOIN
+	S_QOS_DEFINITION q ON t.name = q.r_table
+WHERE 
+    t.NAME NOT LIKE 'dt%' 
+    AND t.name like 'RN%'
+    AND t.is_ms_shipped = 0
+    AND i.OBJECT_ID > 255 
+GROUP BY 
+    q.name,q.qos_group,q.unit,q.unit_short,q.isbool,q.hasmax,t.Name, s.Name, p.Rows
+ORDER BY 
+    t.Name
+ 
