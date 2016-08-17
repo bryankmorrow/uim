@@ -40,7 +40,8 @@ else
          if proc.short_executable == "java.exe" then
             printf ("Executable pid:%05d, cpu: %0.2f%% mem: %d MB - %s (%s)",proc.process_id,proc.cpu_usage,proc.working_set_size/1024,proc.short_executable,proc.command_line)
             process = string.format("%05d, cpu: %0.2f%% mem: %d MB - %s (%s)",proc.process_id,proc.cpu_usage,proc.working_set_size/1024,proc.short_executable,proc.command_line)
-            buff = buff .. process .. "\n"
+            annotation = string.format("%05d, cpu: %0.2f%% mem: %d MB - %s",proc.process_id,proc.cpu_usage,proc.working_set_size/1024,proc.short_executable)
+            buff = buff .. annotation .. "\n"
             print (process)
             note.append(note_id,process)
          elseif proc.short_executable ~= "Idle" then
