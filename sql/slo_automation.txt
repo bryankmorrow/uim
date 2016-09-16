@@ -1,0 +1,18 @@
+
+DECLARE db_cursor CURSOR FOR  
+SELECT source, target, qos
+FROM S_QOS_DATA
+where qos = 'QOS_INTERFACE_UTILIZATIONIN'
+
+OPEN db_cursor   
+FETCH NEXT FROM db_cursor INTO @source, @target, @qos   
+
+WHILE @@FETCH_STATUS = 0   
+BEGIN   
+       INSERT INTO S_QOS_CONSTRAINTS (slo_id, qos, source, target, operator, threshold, expected_accuracy) VALUES (5, @qos, @source, @target, '=', 100, 15)
+
+       FETCH NEXT FROM db_cursor INTO @source, @target, @qos 
+END   
+
+CLOSE db_cursor   
+DEALLOCATE db_cursor
