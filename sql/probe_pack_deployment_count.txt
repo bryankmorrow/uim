@@ -1,0 +1,77 @@
+APPLICATION PROBES
+==================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('adserver', 'adevl', 'cloudstack', 'exchange_monitor', 'ica_server', 'lync_monitor', 'notes_server', 
+					 'ocs_monitor', 'pvs', 'sharepoint, 'websphere_mq', 'xendesktop', 'xenapp' )
+
+RESPONSE TIME PROBES
+====================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('ad_response', 'email_response', 'ews_resposne', 'ica_response', 'jdbc_response', 'notes_response', 'sql_response')
+
+PUBLIC CLOUD SERVICE PROBES
+===========================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('aws', 'azure', 'google_app_engine', 'google_apps', 'rackspace', 'salesforce')
+
+PRIVATE CLOUD PROBES
+====================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('openstack', 'cloudstack', 'vcloud', 'docker_monitor')
+
+WEB APPLICATION PROBES
+======================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('apache', 'easerver', 'iis', 'jboss', 'jdbc_response', 'jmx', 'jvm_monitor', 'tomcat', 'weblogic', 'websphere')
+
+DATABASE PROBES
+===============
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('db2', 'informix', 'mysql', 'oracle', 'oracle_logmon', 'sqlserver', 'sybase', 'sybase_rs')
+
+CISCO UCM PROBES
+================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('cisco_ucm', 'cisco_unity')
+
+CISCO UCS PROBES
+================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('cisco_ucs')
+
+PING PACK PROBES
+================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('net_connect', 'icmp')
+
+NETWORK ADVANCED PROBES
+=======================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('cisco_monitor', 'cisco_nxos', 'cisco_qos', 'interface_traffic', 'snmpcollector, 'snmpget', 'saa_monitor', 'snmptoolkit')
+
+STORAGE PROBES
+==============
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('celerra', 'clariion', 'hitachi', 'ibm_svc', 'ibm-ds', 'ibm-ds4k', 'netapp', 'vmax', 'hp_3par', 'nutanix_monitor', 'purestorage', 'vxplex')
+
+SERVICE RESPONSE PROBES
+=======================
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('e2e_appmon', 'dhcp_response', 'dns_response', 'ldap_response', 'ntp_response', 'url_response', 'webservicemon')
+
+SAP PROBES
+==========
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('sapbasis_agentil')
+
+BIG DATA PROBES
+===============
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('hadoop_monitor', 'cassandra_monitor', 'mongodb_monitor')
+
+UIM4Z PROBES
+============
+select count(distinct robot_id) from CM_NIMBUS_PROBE
+WHERE probe_name in ('zstorage', 'zvm', 'zops', 'zdataservices')
+
+
