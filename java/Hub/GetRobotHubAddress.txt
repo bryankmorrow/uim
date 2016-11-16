@@ -1,0 +1,18 @@
+public static String getHubAddress() throws NimException {
+        NimRequest getHubRequest = null;
+        PDS getHubPds = null;
+        try {
+            getHubRequest = new NimRequest("controller", "gethub");
+            getHubPds = getHubRequest.send();
+        } catch (NimException e) {
+            logger.error("Probe Verify failed to contact local robot to get hub information. Cause: " + e.getMessage());
+            // there is no point to keep on going.
+        } finally {
+            if (getHubRequest != null) {
+                getHubRequest.disconnect();
+                getHubRequest.close();
+            }
+        }
+        String hubAddress = "/" + getHubPds.getString("hubdomain") + "/" + getHubPds.getString("hubname") + "/" + getHubPds.getString("hubrobotname") + "/hub";
+        return hubAddress;
+    }

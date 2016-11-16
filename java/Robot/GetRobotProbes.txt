@@ -1,0 +1,32 @@
+private static List<Probe> getProbeList(String robotName, String robotAddress) throws NimException {  	
+        List<Probe> probes = new ArrayList<Probe>();
+        logger.debug("Getting probe list from: " + robotAddress);
+        NimRequest getProbesRequest = null;
+        PDS getProbesResponse = null;
+        try {
+            getProbesRequest = new NimRequest(robotAddress + "/controller", "probe_list");
+            getProbesResponse = getProbesRequest.send();
+        } catch (NimException e) {
+            logger.error("Failed to retrieve the list of probes from robot " + robotName + ". We will skip discovering this robot for now. Cause: " + e.getMessage());
+        } finally {
+            if (getProbesRequest != null) {
+                getProbesRequest.disconnect();
+                getProbesRequest.close();
+            }
+        }
+                
+    	if (getProbesResponse != null) { // ok, we received a list of probes from the robot
+            Enumeration<String> p = getProbesResponse.keys();
+            while (p.hasMoreElements()) {
+                String probeKey = p.nextElement();
+                PDS probeList = getProbesResponse.getPDS(probeKey);
+                String probeName = probeList.getString("name");
+                String workdir = probeList.getString("workdir");
+                String configFile = probeList.getString("config");
+                String version = probeList.getString("pkg_version");
+                Probe probe = new Probe(probeName, configFile, workdir, version);
+                probes.add(probe);
+            }
+        }     
+        return probes;
+    }

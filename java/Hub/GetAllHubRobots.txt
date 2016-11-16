@@ -1,0 +1,35 @@
+public static ArrayList<Robot> getRobots(ArrayList<Hub> hubList) throws NimException {
+    	ArrayList<Robot> robots = new ArrayList<Robot>();
+    	String hubAddress = "";
+    	for (Hub hub : hubList) {
+    		hubAddress = hub.getHubAddress();
+            NimRequest getRobotsRequest = null;
+            PDS getRobotsResponse = null;
+            PDS[] pdss = null;
+            try {
+                getRobotsRequest = new NimRequest(hubAddress, "getrobots");
+                getRobotsResponse = getRobotsRequest.send();
+            } catch (NimException e) {
+                logger.error("Failed to retrieve the list of robots from hub " + hubAddress + ". We will skip discovering this hub for now. Cause: " + e.getMessage());
+            } finally {
+                if (getRobotsRequest != null) {
+                    getRobotsRequest.disconnect();
+                    getRobotsRequest.close();
+                }
+            }
+            if (getRobotsResponse != null) { // ok, we received a list of robots from the hub
+                pdss = getRobotsResponse.getTablePDSs("robotlist");
+
+                for (int entry = 0; entry < pdss.length; entry++) { // robot iteration
+
+                    String robotAddress = pdss[entry].getStringIfExists("addr"); // get robot address
+                    String robotName = pdss[entry].getStringIfExists("name"); // get robot name
+                    String origin = pdss[entry].getStringIfExists("origin"); // get origin
+                    Robot r = new Robot(origin, robotName, robotAddress, hubAddress);
+                    robots.add(r);
+                }
+            }
+    	}
+
+        return robots;
+    }

@@ -1,0 +1,29 @@
+public static ArrayList<Hub> getHubs(String hubAddress) throws NimException {
+    	// Get the hubs to be searched from configuration file
+    	ArrayList<Hub> hubList = new ArrayList<Hub>();
+    	logger.info("Building hub list, running gethubs");
+        PDS getHubs = null;
+        NimRequest reqHubs = null;
+        
+        try {
+			reqHubs = new NimRequest(hubAddress, "gethubs", getHubs);
+			PDS hubRet = reqHubs.send();
+			PDS[] hubs = hubRet.getTablePDSs("hublist");
+			for (int i = 0; i < hubs.length; i++) {
+				String remoteHubName = hubs[i].getString("name");
+				String remoteHubAddress = hubs[i].getString("addr");
+				Hub h = new Hub(remoteHubName, remoteHubAddress);
+				logger.info("Hub "+remoteHubName+" found, adding to list");
+				hubList.add(h);	
+			}
+		} catch (NimException e) {
+			logger.error("Failed to retrieve list of hubs " + e.getLocalizedMessage());
+		} finally {
+			if (reqHubs != null) {
+				reqHubs.disconnect();
+				reqHubs.close();
+			}
+		}
+        
+        return hubList;
+    }
