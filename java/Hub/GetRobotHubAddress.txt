@@ -13,6 +13,6 @@ public static String getHubAddress() throws NimException {
                 getHubRequest.close();
             }
         }
-        String hubAddress = "/" + getHubPds.getString("hubdomain") + "/" + getHubPds.getString("hubname") + "/" + getHubPds.getString("hubrobotname") + "/hub";
+        String hubAddress = "/" + getHubPds.getString("hubdomain") + "/" + getHubPds.getString("hubname") + "/" + getHubPds.getString("hubrobotname");
         return hubAddress;
     }
