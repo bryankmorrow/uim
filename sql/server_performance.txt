@@ -1,0 +1,66 @@
+select tab10.source as 'DeviceName', dateadd(hour,-24,getdate()) as PeriodStart, getdate() as PeriodEnd, tab10.origin,
+
+
+       	(select avg(tab5.samplevalue)/100
+          	from v_qos_cpu_usage as tab5
+          	where tab5.sampletime  between dateadd(hour,-24,getdate()) and getdate()
+           	and tab5.source = tab10.source)as 'CPU Used',
+
+	(select avg(main1.samplemax)/1000
+	from v_qos_memory_physical as main1
+	where main1.sampletime   between dateadd(hour,-24,getdate()) and getdate()
+           	and main1.source = tab10.source)as 'Phys Mem GB',
+
+	(select avg(main2.samplevalue)/100
+	from v_qos_memory_physical_perc as main2
+	where main2.sampletime   between dateadd(hour,-24,getdate()) and getdate()
+           	and main2.source = tab10.source)as 'Phys Mem Used',
+
+			(select avg(main3.samplemax)/1000
+	from v_qos_memory_swap as main3
+	where main3.sampletime   between dateadd(hour,-24,getdate()) and getdate()
+           	and main3.source = tab10.source)as 'Swap Mem GB',
+
+			(select avg(main4.samplevalue)/100
+	from v_qos_memory_swap_perc as main4
+	where main4.sampletime   between dateadd(hour,-24,getdate()) and getdate()
+           	and main4.source = tab10.source)as 'Swap Mem Used',
+
+			(select avg(main5.samplemax)/1000
+	from v_qos_memory_usage as main5
+	where main5.sampletime   between dateadd(hour,-24,getdate()) and getdate()
+           	and main5.source = tab10.source)as 'Total Mem GB',
+
+			(select avg(main6.samplevalue)/100
+	from v_qos_memory_perc_usage as main6
+	where main6.sampletime   between dateadd(hour,-24,getdate()) and getdate()
+           	and main6.source = tab10.source)as 'Total Mem Used',
+
+			(select avg(main7.samplevalue)/100
+	from v_qos_disk_usage_perc as main7
+	where main7.sampletime between dateadd(hour,-24,getdate()) and getdate() and (main7.target = 'c:\' or main7.target = '/')
+           	and main7.source = tab10.source)as 'Root Disk Used Perc',
+
+			(select avg(main8.samplevalue)/100
+	from v_qos_disk_usage_perc as main8
+	where main8.sampletime   between dateadd(hour,-24,getdate()) and getdate() and main8.target = 'd:\'
+           	and main8.source = tab10.source)as 'D: Perc Used',
+
+			(select avg(main9.samplevalue)/100
+	from v_qos_disk_usage_perc as main9
+	where main9.sampletime   between dateadd(hour,-24,getdate()) and getdate() and main9.target = 'e:\'
+           	and main9.source = tab10.source) as 'E: Perc Used',
+
+(select avg(main10.samplevalue)/100
+	from v_qos_disk_usage_perc as main10
+	where main10.sampletime   between dateadd(hour,-24,getdate()) and getdate() and main10.target = 'f:\'
+           	and main10.source = tab10.source) as 'F: Perc Used',
+
+(select avg(main11.samplevalue)/100
+	from v_qos_disk_usage_perc as main11
+	where main11.sampletime between dateadd(hour,-24,getdate()) and getdate() and main11.target = 'g:\'
+           	and main11.source = tab10.source) as 'G: Perc Used'
+
+from v_qos_cpu_usage as tab10
+group by tab10.origin, tab10.source
+order by tab10.origin, tab10.source
