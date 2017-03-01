@@ -3,6 +3,7 @@
 -- Each entry needs to be on a new line in the following format for net_connect:
 -- net_connect,robotaddress,profile,hostname,ip,group
 -- url_response,robotaddress,profile,url,group
+-- Example: net_connect,/CA-UIM/NY-HUB/usildodnimnyhub3,localhost,127.0.0.1,test-group
 fileName = "netconnect-urlresponse-profiles.txt"
 
 -- see if the file exists
@@ -104,25 +105,6 @@ end
 
 
 -- Start Script
--- Check for the probes before continuing
-ncArgs = pds.create()
-pds.putString(ncArgs, "name", "net_connect")
-list_probes_netconnect, rc = nimbus.request(netconnectAddr.."/controller", "probe_list", ncArgs)
-if rc == NIME_OK then
-   netconnectFound = true
-else
-   print ("Net Connect Not Found")
-end
-
-urArgs = pds.create()
-pds.putString(urArgs, "name", "url_response")
-list_probes_urlresponse, rc = nimbus.request(urlResponseAddr.."/controller", "probe_list", urArgs)
-if rc == NIME_OK then
-   urlresponseFound = true
-else
-   print ("URL Response Not Found")
-end
-
 -- Load the file and check each line
 
 lines = lines_from(fileName)
@@ -130,9 +112,25 @@ lines = lines_from(fileName)
 for k,v in pairs(lines) do
    str = split(v, ",")
    if str[1] == "net_connect" then
-      ncAddProfile(str[2], str[3], str[4], str[5], str[6])
+      -- Check for the probes before continuing
+      ncArgs = pds.create()
+      pds.putString(ncArgs, "name", "net_connect")
+      list_probes_netconnect, rc = nimbus.request(str[2].."/controller", "probe_list", ncArgs)
+      if rc == NIME_OK then
+         ncAddProfile(str[2], str[3], str[4], str[5], str[6])
+      else
+         print ("Net Connect Not Found")
+      end
    elseif str[1] == "url_response" then
-      urAddProfile(str[2], str[3], str[4], str[5])
+      urArgs = pds.create()
+      pds.putString(urArgs, "name", "url_response")
+      list_probes_urlresponse, rc = nimbus.request(str[2].."/controller", "probe_list", urArgs)
+      if rc == NIME_OK then
+         urAddProfile(str[2], str[3], str[4], str[5])
+      else
+         print ("URL Response Not Found")
+      end
+      
    end
 end
 
